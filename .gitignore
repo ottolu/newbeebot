@@ -1,0 +1,17 @@
+.DS_Store
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.venv/
+__pycache__/
+*.pyc
+.coverage
+coverage.xml
+.python-version
+build/
+dist/
+htmlcov/
+*.egg-info/
+.newbeebot/
+.idea/
+.vscode/
