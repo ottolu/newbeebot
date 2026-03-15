@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - "codex/**"
+      - "dev/**"
   pull_request:
 
 jobs:
@@ -22,11 +23,5 @@ jobs:
       - name: Install dependencies
         run: uv sync --extra dev
 
-      - name: Ruff
-        run: uv run ruff check .
-
-      - name: Mypy
-        run: uv run mypy src tests
-
-      - name: Pytest
-        run: uv run pytest
+      - name: Check
+        run: ./scripts/check.sh

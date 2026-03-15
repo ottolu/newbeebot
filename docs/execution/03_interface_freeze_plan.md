@@ -226,6 +226,8 @@ Medium
 - `PolicyEngine.check_tool_permission(tool_name, context) -> bool`
 - `PolicyEngine.check_path_access(path, context) -> bool`
 - `PolicyEngine.check_resource_limit(resource_type, amount, context) -> bool`
+- `PolicyConfig.allowed_tools`
+- `PolicyConfig.max_tool_input_chars`
 
 ### Why freeze early
 
@@ -238,8 +240,12 @@ High
 
 ### First implementation guidance
 
-- CLI MVP can use a simple allow-all or restricted-local policy implementation
-- keep richer auth out of MVP, but keep the boundary explicit
+- CLI/runtime now use a config-driven restricted-local policy implementation
+- current permission model is:
+  - tool allowlist via `allowed_tools`
+  - input-size guard via `max_tool_input_chars`
+  - path access remains explicit but deferred until a filesystem-capable tool exists
+- keep richer auth out of MVP/V1, but keep the boundary explicit
 
 ---
 

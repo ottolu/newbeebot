@@ -28,10 +28,17 @@ class ProviderConfig:
 
 
 @dataclass(frozen=True, slots=True)
+class PolicyConfig:
+    allowed_tools: tuple[str, ...] = ()
+    max_tool_input_chars: int = 2048
+
+
+@dataclass(frozen=True, slots=True)
 class AppConfig:
     runtime: RuntimeConfig = RuntimeConfig()
     provider: ProviderConfig = ProviderConfig()
     storage: StorageConfig = StorageConfig()
+    policy: PolicyConfig = PolicyConfig()
 
 
 def load_config(path: Path | str | None = None) -> AppConfig:
@@ -45,6 +52,7 @@ def load_config(path: Path | str | None = None) -> AppConfig:
     runtime = _section(raw_data, "runtime")
     provider = _section(raw_data, "provider")
     storage = _section(raw_data, "storage")
+    policy = _section(raw_data, "policy")
 
     return AppConfig(
         runtime=RuntimeConfig(
@@ -69,6 +77,16 @@ def load_config(path: Path | str | None = None) -> AppConfig:
                 storage.get("base_path", ".newbeebot/state"),
             ),
         ),
+        policy=PolicyConfig(
+            allowed_tools=_env_or_tuple(
+                "NEWBEEBOT_POLICY_ALLOWED_TOOLS",
+                policy.get("allowed_tools", ()),
+            ),
+            max_tool_input_chars=_env_or_int(
+                "NEWBEEBOT_POLICY_MAX_TOOL_INPUT_CHARS",
+                policy.get("max_tool_input_chars", 2048),
+            ),
+        ),
     )
 
 
@@ -89,3 +107,22 @@ def _env_or_optional(env_name: str, default: Any) -> str | None:
     if default is None:
         return None
     return str(default)
+
+
+def _env_or_int(env_name: str, default: Any) -> int:
+    raw_value = os.environ.get(env_name, default)
+    return int(raw_value)
+
+
+def _env_or_tuple(env_name: str, default: Any) -> tuple[str, ...]:
+    if env_name in os.environ:
+        return tuple(
+            value.strip()
+            for value in os.environ[env_name].split(",")
+            if value.strip()
+        )
+    if isinstance(default, str):
+        return (default,) if default else ()
+    if isinstance(default, (list, tuple)):
+        return tuple(str(value) for value in default)
+    return ()

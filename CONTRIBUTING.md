@@ -21,6 +21,7 @@
 - preferred branch naming is `dev/<topic>`
 - use small, module-local branches whenever possible
 - direct pushes to `main` are reserved for explicit coordination or release decisions
+- branch examples and rules live in `docs/templates/dev_branch_naming.md`
 
 ## Conflict handling
 
@@ -29,3 +30,7 @@ If the implementation requirement conflicts with repository documents:
 1. record the conflict in `docs/execution/`
 2. propose the smallest safe resolution
 3. avoid silently rewriting shared architecture
+
+## Troubleshooting
+
+- start with `docs/execution/08_troubleshooting.md`

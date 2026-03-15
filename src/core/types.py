@@ -77,6 +77,21 @@ class AssistantMessageEvent(Event):
         )
 
 
+@dataclass(frozen=True, slots=True)
+class EventEnvelope:
+    session_id: str
+    channel: str
+    event: Event
+
+    @classmethod
+    def from_session_event(cls, *, session: SessionRecord, event: Event) -> EventEnvelope:
+        return cls(
+            session_id=session.session_id,
+            channel=session.channel,
+            event=event,
+        )
+
+
 @dataclass(slots=True)
 class SessionRecord:
     session_id: str

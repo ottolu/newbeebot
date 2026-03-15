@@ -1,6 +1,6 @@
 # Task Board
 
-Updated: 2026-03-13
+Updated: 2026-03-15
 
 ## Status Legend
 
@@ -14,7 +14,7 @@ Updated: 2026-03-13
 - Execution bootstrap: `[DONE]`
 - MVP engineering baseline: `[DONE]`
 - Real MVP feature closure: `[DONE]`
-- V1 expansion work: `[READY]`
+- V1 expansion work: `[DONE]`
 
 ## 0. Program Coordination
 
@@ -30,19 +30,19 @@ Status: `[DONE]`
 
 ## 1. Repo Tooling And Workflow
 
-Status: `[SCAFFOLDED]`
+Status: `[DONE]`
 
 - [x] Create root `pyproject.toml`
 - [x] Add `README.md`, `AGENTS.md`, `CONTRIBUTING.md`, `WORKFLOW.md`
 - [x] Add `scripts/check.sh` and `scripts/run_cli.sh`
 - [x] Add CI workflow for lint, typecheck, and tests
 - [x] Establish root `src/` module skeleton
-- [ ] Add branch/PR templates if team workflow needs them
-- [ ] Add coverage reporting and failure thresholds
+- [x] Add branch/PR templates if team workflow needs them
+- [x] Add coverage reporting and failure thresholds
 
 ## 2. Core Contracts And Config
 
-Status: `[SCAFFOLDED]`
+Status: `[DONE]`
 
 - [x] Create shared config model
 - [x] Create shared event/session types
@@ -50,7 +50,7 @@ Status: `[SCAFFOLDED]`
 - [x] Freeze initial contract plan in execution docs
 - [x] Expand config validation and environment override support
 - [x] Add contract tests for runtime, tools, and provider seams beyond current smoke level
-- [ ] Add explicit event bus/event envelope types if runtime requires them
+- [x] Add explicit event bus/event envelope types if runtime requires them
 
 ## 3. Storage
 
@@ -75,26 +75,26 @@ Status: `[DONE]`
 
 ## 5. Tools
 
-Status: `[SCAFFOLDED]`
+Status: `[DONE]`
 
 - [x] Create tool registry placeholder
 - [x] Create one safe built-in tool placeholder
 - [x] Define tool schema export and discovery behavior
 - [x] Define tool execution result/error model
-- [ ] Add more safe built-in tools needed by MVP
+- [x] Add more safe built-in tools needed by MVP
 - [x] Add tool-level tests
 
 ## 6. Runtime And Orchestration
 
-Status: `[SCAFFOLDED]`
+Status: `[DONE]`
 
 - [x] Create minimal one-turn runtime loop
 - [x] Persist user and assistant events in the MVP smoke path
 - [x] Add multi-turn session continuation
 - [x] Add tool-call loop
 - [x] Add routing/orchestration boundary beyond the current direct flow
-- [ ] Add policy hooks, limits, and failure handling
-- [ ] Add richer runtime tests
+- [x] Add policy hooks, limits, and failure handling
+- [x] Add richer runtime tests
 
 ## 7. CLI
 
@@ -118,30 +118,30 @@ Status: `[DONE]`
 
 ## 9. Policy / Auth / Permissions
 
-Status: `[SCAFFOLDED]`
+Status: `[DONE]`
 
-- [ ] Confirm policy boundary from source-of-truth docs against frozen runtime seams
-- [ ] Define permission model for tools/channels/providers
+- [x] Confirm policy boundary from source-of-truth docs against frozen runtime seams
+- [x] Define permission model for tools/channels/providers
 - [x] Implement initial policy enforcement hook
-- [ ] Add tests for allowed/denied execution paths
+- [x] Add tests for allowed/denied execution paths
 
 ## 10. Channels
 
-Status: `[SCAFFOLDED]`
+Status: `[DONE]`
 
 - [x] Create `src/channels/` boundary
-- [ ] Extract CLI-facing channel adapter seam from direct app composition
+- [x] Extract CLI-facing channel adapter seam from direct app composition
 - [x] Define channel message normalization contract
-- [ ] Add at least one non-CLI adapter only if still inside MVP scope
+- [x] Add at least one non-CLI adapter only if still inside MVP scope
 
 ## 11. Observability And Operability
 
-Status: `[SCAFFOLDED]`
+Status: `[DONE]`
 
 - [x] Add structured logging conventions
-- [ ] Define basic metrics/tracing seam
+- [x] Define basic metrics/tracing seam
 - [x] Add startup/runtime diagnostics
-- [ ] Add operator-facing troubleshooting notes
+- [x] Add operator-facing troubleshooting notes
 
 ## 12. MVP Exit Criteria
 
@@ -154,9 +154,9 @@ Status: `[DONE]`
 - [x] Main smoke path is covered by repeatable tests
 - [x] README documents the MVP demo path end to end
 
-## Recommended Next Threads
+## Post-Plan Backlog
 
-- `[READY]` Policy / permission model expansion
-- `[READY]` More built-in tools and safer tool capabilities
-- `[READY]` Metrics / tracing seam
-- `[READY]` Non-CLI channels if product scope expands
+- richer auth and external-channel policy models
+- deeper tracing/metrics exporters
+- broader built-in tool catalog
+- server/API expansion beyond the current placeholder

@@ -5,13 +5,18 @@ import asyncio
 from collections.abc import Sequence
 from pathlib import Path
 
+from channels.cli import CLIChannelAdapter
 from core.config import AppConfig, load_config
+from observability.metrics import InMemoryMetricsSink
 from providers import build_provider
 from runtime.agent_loop import AgentLoop
+from runtime.policy import ConfigurablePolicy
 from server.app import get_health
 from storage.session_store import FileSessionStore
 from tools.echo import EchoTool
 from tools.registry import SimpleToolRegistry
+from tools.upper import UpperTool
+from tools.word_count import WordCountTool
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -110,10 +115,11 @@ def main(argv: Sequence[str] | None = None) -> int:
 def _run_demo(args: argparse.Namespace) -> int:
     config = load_config(Path(args.config) if args.config is not None else None)
     runtime = _build_runtime(config=config, data_dir_arg=args.data_dir)
+    channel = CLIChannelAdapter(channel_id=config.runtime.default_channel)
 
     result = asyncio.run(
         runtime.run_once(
-            channel=config.runtime.default_channel,
+            channel=channel.channel_id,
             user_text=args.message,
         )
     )
@@ -127,6 +133,7 @@ def _run_demo(args: argparse.Namespace) -> int:
 def _run_chat(args: argparse.Namespace) -> int:
     config = load_config(Path(args.config) if args.config is not None else None)
     runtime = _build_runtime(config=config, data_dir_arg=args.data_dir)
+    channel = CLIChannelAdapter(channel_id=config.runtime.default_channel)
 
     session_id: str | None = None
     while True:
@@ -138,7 +145,7 @@ def _run_chat(args: argparse.Namespace) -> int:
 
         if session_id is None:
             result = asyncio.run(
-                runtime.run_once(channel=config.runtime.default_channel, user_text=user_text)
+                runtime.run_once(channel=channel.channel_id, user_text=user_text)
             )
             session_id = result.session.session_id
             print(f"session_id={session_id}")
@@ -182,19 +189,28 @@ def _build_runtime(*, config: AppConfig, data_dir_arg: str | None) -> AgentLoop:
     return AgentLoop(
         provider=build_provider(config.runtime.provider, config.provider),
         session_store=FileSessionStore(data_dir),
-        tool_registry=SimpleToolRegistry([EchoTool()]),
+        tool_registry=_build_tool_registry(),
+        policy_engine=ConfigurablePolicy(config.policy),
+        metrics_sink=InMemoryMetricsSink(),
     )
 
 
 def _run_doctor(args: argparse.Namespace) -> int:
     config = load_config(Path(args.config) if args.config is not None else None)
-    tools = SimpleToolRegistry([EchoTool()]).list_tools()
+    tools = _build_tool_registry().list_tools()
     health = get_health()
     print(f"provider={config.runtime.provider}")
     print(f"storage_base_path={config.storage.base_path}")
+    print(f"allowed_tools={','.join(config.policy.allowed_tools)}")
+    print(f"max_tool_input_chars={config.policy.max_tool_input_chars}")
     print(f"tools={','.join(tool.name for tool in tools)}")
+    print("telemetry=enabled")
     print(f"server_status={health['status']}")
     return 0
+
+
+def _build_tool_registry() -> SimpleToolRegistry:
+    return SimpleToolRegistry([EchoTool(), UpperTool(), WordCountTool()])
 
 
 if __name__ == "__main__":

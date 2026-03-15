@@ -1,6 +1,6 @@
 # Bootstrap Status
 
-Updated: 2026-03-13
+Updated: 2026-03-15
 
 ## Completed in this bootstrap round
 
@@ -31,9 +31,9 @@ Updated: 2026-03-13
 
 ## Current repository status
 
-The repository is now past the bootstrap phase. It has a contract-first MVP implementation
-that is runnable, testable, and safe to extend in parallel. Core seams exist for config,
-providers, storage, tools, runtime, channels, CLI, server, and observability.
+The repository is now past both bootstrap and MVP-only status. It has a contract-first
+implementation that is runnable, testable, and safe to extend in parallel. Core seams exist
+for config, providers, storage, tools, runtime, channels, CLI, server, and observability.
 
 ## Verified baseline
 
@@ -44,15 +44,15 @@ providers, storage, tools, runtime, channels, CLI, server, and observability.
 ## Current completion summary
 
 - execution bootstrap and repository restructuring are complete
-- the current MVP is complete against the execution docs
-- remaining work is V1 and production-hardening backlog, not MVP-critical closure
+- the current MVP and planned V1 baseline are complete against the execution docs
+- remaining work is enhancement backlog, not required plan closure
 
-## Recommended next threads
+## Suggested backlog threads
 
-1. permission and policy model expansion in `src/core` and `src/runtime`
-2. richer built-in tool set in `src/tools`
-3. metrics, tracing, and operator docs in `src/observability` and `README.md`
-4. non-CLI channel adapters if product scope expands
+1. richer policy/auth models if external channels or file tools are introduced
+2. additional built-in tools if product scenarios require them
+3. deeper metrics/tracing exporters beyond the current seam
+4. server/API expansion if the product moves beyond CLI-first operation
 
 ## Guardrails for follow-on threads
 

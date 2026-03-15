@@ -11,6 +11,7 @@ from core.abstractions import (
     ToolRegistry,
 )
 from core.types import AssistantMessageEvent, Event, SessionRecord, UserMessageEvent
+from observability.metrics import MetricsSink, NullMetricsSink
 from runtime.policy import AllowAllPolicy
 
 
@@ -27,11 +28,13 @@ class AgentLoop:
         session_store: SessionStore,
         tool_registry: ToolRegistry,
         policy_engine: PolicyEngine | None = None,
+        metrics_sink: MetricsSink | None = None,
     ) -> None:
         self._provider = provider
         self._session_store = session_store
         self._tool_registry = tool_registry
         self._policy_engine = policy_engine or AllowAllPolicy()
+        self._metrics_sink = metrics_sink or NullMetricsSink()
 
     async def run_once(self, *, channel: str, user_text: str) -> TurnResult:
         session = await self._session_store.create_session(channel=channel)
@@ -44,6 +47,10 @@ class AgentLoop:
         return await self._run_turn(session=session, user_text=user_text)
 
     async def _run_turn(self, *, session: SessionRecord, user_text: str) -> TurnResult:
+        self._metrics_sink.increment(
+            "runtime.turns",
+            attributes={"channel": session.channel},
+        )
         user_event = UserMessageEvent.from_text(session.session_id, user_text)
         await self._session_store.append_event(session.session_id, user_event)
 
@@ -79,12 +86,34 @@ class AgentLoop:
         tool_name, arguments = tool_request
         tool_context = {"session_id": session.session_id, "channel": session.channel}
         if not self._policy_engine.check_tool_permission(tool_name, tool_context):
+            self._metrics_sink.increment(
+                "runtime.tool_permission_denied",
+                attributes={"tool_name": tool_name, "channel": session.channel},
+            )
             assistant_text = f"Tool blocked by policy: {tool_name}"
             assistant_event = AssistantMessageEvent.from_text(session.session_id, assistant_text)
             await self._session_store.append_event(session.session_id, assistant_event)
             stored_session = await self._session_store.get_session(session.session_id)
             if stored_session is None:
                 raise RuntimeError("Session disappeared after policy denial")
+            return TurnResult(session=stored_session, assistant_text=assistant_text)
+
+        tool_input_chars = sum(len(str(value)) for value in arguments.values())
+        if not self._policy_engine.check_resource_limit(
+            "tool_input_chars",
+            tool_input_chars,
+            tool_context,
+        ):
+            self._metrics_sink.increment(
+                "runtime.tool_limit_denied",
+                attributes={"tool_name": tool_name, "channel": session.channel},
+            )
+            assistant_text = "Tool blocked by policy limit: tool_input_chars"
+            assistant_event = AssistantMessageEvent.from_text(session.session_id, assistant_text)
+            await self._session_store.append_event(session.session_id, assistant_event)
+            stored_session = await self._session_store.get_session(session.session_id)
+            if stored_session is None:
+                raise RuntimeError("Session disappeared after policy limit denial")
             return TurnResult(session=stored_session, assistant_text=assistant_text)
 
         tool = self._tool_registry.get(tool_name)
@@ -103,6 +132,10 @@ class AgentLoop:
             {"tool_name": tool_name, "arguments": arguments},
         )
         await self._session_store.append_event(session.session_id, tool_call_event)
+        self._metrics_sink.increment(
+            "runtime.tool_calls",
+            attributes={"tool_name": tool_name, "channel": session.channel},
+        )
 
         try:
             tool_result = await tool.run(arguments)

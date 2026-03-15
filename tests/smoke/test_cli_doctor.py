@@ -14,6 +14,9 @@ def test_cli_doctor_reports_runtime_configuration(
         (
             "[runtime]\n"
             "provider = 'fake'\n"
+            "[policy]\n"
+            "allowed_tools = ['echo', 'upper']\n"
+            "max_tool_input_chars = 64\n"
             "[storage]\n"
             f"base_path = '{tmp_path / 'state'}'\n"
         ),
@@ -26,5 +29,8 @@ def test_cli_doctor_reports_runtime_configuration(
     assert exit_code == 0
     assert "provider=fake" in captured.out
     assert f"storage_base_path={tmp_path / 'state'}" in captured.out
-    assert "tools=echo" in captured.out
+    assert "allowed_tools=echo,upper" in captured.out
+    assert "max_tool_input_chars=64" in captured.out
+    assert "tools=echo,upper,word_count" in captured.out
+    assert "telemetry=enabled" in captured.out
     assert "server_status=ok" in captured.out

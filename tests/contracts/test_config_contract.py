@@ -48,3 +48,20 @@ def test_load_config_applies_environment_overrides(
     assert config.provider.model == "gpt-4.1-mini"
     assert config.provider.api_key == "sk-test"
     assert config.storage.base_path == "/tmp/newbeebot-env-state"
+
+
+def test_load_config_supports_policy_section(tmp_path: Path) -> None:
+    config_path = tmp_path / "newbeebot.toml"
+    config_path.write_text(
+        (
+            "[policy]\n"
+            "allowed_tools = ['echo', 'upper']\n"
+            "max_tool_input_chars = 12\n"
+        ),
+        encoding="utf-8",
+    )
+
+    config = load_config(config_path)
+
+    assert config.policy.allowed_tools == ("echo", "upper")
+    assert config.policy.max_tool_input_chars == 12
